@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 public class DbHelper extends SQLiteOpenHelper {
-	private static final String DB_NAME = "wodtracker.db";
+	private static final String DB_NAME = "sample.db";
 	private static final int DB_VERSION = 13;
 	private static DbHelper mInstance;
 	public SQLiteDatabase db;
@@ -29,7 +29,7 @@ public class DbHelper extends SQLiteOpenHelper {
 	public static final String C_HS_NOTES = "notes";
 	public static final String C_WEB_SYNC_TIME = "web_sync_time";
 	
-	static final String[] FROM_HISTORY_ALL = { C_HS_ID, C_HS_CREATE_TIME,
+	static final String[] FROM_ALL = { C_HS_ID, C_HS_CREATE_TIME,
 		C_HS_DESCRIPTION, C_HS_DATE, C_HS_TIME, C_HS_RESULTS, C_HS_RX, 
 		C_HS_PR, C_HS_NOTES };
 	
@@ -92,7 +92,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		ArrayList<History> wodHistory = new ArrayList<History>();
 
-		Cursor cursor = db.query(TABLE_HISTORY, FROM_HISTORY_ALL, null, null, null, null, 
+		Cursor cursor = db.query(TABLE_HISTORY, FROM_ALL, null, null, null, null, 
 				sortString);
 		if (cursor.moveToFirst()) {
 			do {
@@ -127,7 +127,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
 		ArrayList<History> wodHistory = new ArrayList<History>();
 
-		Cursor cursor = db.query(TABLE_HISTORY, FROM_HISTORY_ALL, 
+		Cursor cursor = db.query(TABLE_HISTORY, FROM_ALL, 
 				"substr("+C_HS_DATE+",7,4) = ? and substr("+C_HS_DATE+",1,2) = ?", 
 				new String[] { year, month}, null, null, sortString);
 		if (cursor.moveToFirst()) {
