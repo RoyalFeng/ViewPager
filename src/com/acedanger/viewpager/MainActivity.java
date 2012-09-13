@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -14,10 +12,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.acedanger.viewpager.support.Constants;
 import com.acedanger.viewpager.support.CustomHistoryView;
@@ -64,12 +62,6 @@ public class MainActivity extends FragmentActivity {
 		Log.i(this.getClass().getSimpleName(), "onCreate method; just set the mViewPager adapter to mSectionsPagerAdapter");
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
-	}
-
 	/**
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
 	 * one of the primary sections of the app.
@@ -113,20 +105,26 @@ public class MainActivity extends FragmentActivity {
 	 * A dummy fragment representing a section of the app, but that simply
 	 * displays dummy text.
 	 */
-	public static class DummySectionFragment extends Fragment {
-		public static final String SUM_ITEM = "summary_items";
+	public class DummySectionFragment extends Fragment {
+		public static final String SUM_ITEM = "summary_item";
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			Bundle args = getArguments();
+
 			DataSummary sumItem = args.getParcelable(SUM_ITEM);
 			ArrayList<History> wods = mDbHelper.getHistoryByMonth(sumItem.getYear(), 
 					Utility.pad(Integer.valueOf(sumItem.getMonth())), Constants.SORT_BY_DATE);
-			View mFragmentView = inflater.inflate(R.layout.wod_history, container, false);
-//			Log.i(this.getClass().getSimpleName(), 
-//					"in the onCreateView method with year/month/(array)wods.size = " +strYear+"/"+Utility.pad(iMonth)+"/"+wods.size());
+			
+			View mFragmentView = inflater.inflate(R.layout.wod_history, null);
+			TextView tvMonth = (TextView) mFragmentView.findViewById(R.id.wodHistoryMonth);
+			TextView tvYear = (TextView) mFragmentView.findViewById(R.id.wodHistoryYear);
 			ListView listHistory = (ListView) mFragmentView.findViewById(R.id.listHistory);
-			listHistory.setAdapter(new CustomHistoryView(container.getContext().getApplicationContext(), wods));
+			
+			tvMonth.setText(sumItem.getMonth());
+			tvYear.setText(sumItem.getYear());
+			CustomHistoryView chv = new CustomHistoryView(container.getContext(), wods);
+			listHistory.setAdapter(chv);
 			return mFragmentView;
 		}
 	}

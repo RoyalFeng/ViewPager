@@ -42,7 +42,7 @@ public class CustomHistoryView extends BaseAdapter {
 	public View getView(final int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		if(convertView == null) {
-			convertView = mInflator.inflate(R.layout.rowhistory, null);
+			convertView = mInflator.inflate(R.layout.row_history, null);
 			holder = new ViewHolder();
 			holder.date = (TextView) convertView.findViewById(R.id.rowHistoryDate);
 			holder.description = (TextView) convertView.findViewById(R.id.rowHistoryDesc);
