@@ -2,13 +2,17 @@ package com.acedanger.viewpager;
 
 import java.util.ArrayList;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -45,7 +49,6 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		mDbHelper = DbHelper.getInstance(this);
 
 		summary = mDbHelper.getDataSummary(DbHelper.TABLE_HISTORY);
@@ -54,11 +57,11 @@ public class MainActivity extends FragmentActivity {
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-
+		
+		Log.i(this.getClass().getSimpleName(), "onCreate method; just set the mViewPager adapter to mSectionsPagerAdapter");
 	}
 
 	@Override
@@ -75,16 +78,14 @@ public class MainActivity extends FragmentActivity {
 
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
+			Log.i(this.getClass().getSimpleName(), "SectionsPagerAdapter constructor");
 		}
-
+		
 		@Override
 		public Fragment getItem(int i) {
 			Fragment fragment = new DummySectionFragment();
 			Bundle args = new Bundle();
-			DataSummary sumItem = summary.get(i);
-			args.putString(DummySectionFragment.YEAR, sumItem.getYear());
-			args.putString(DummySectionFragment.MONTH, sumItem.getMonth());
-			args.putString(DummySectionFragment.COUNT, sumItem.getCount());
+			args.putParcelable(DummySectionFragment.SUM_ITEM, summary.get(i));
 			fragment.setArguments(args);
 			return fragment;
 		}
@@ -93,38 +94,37 @@ public class MainActivity extends FragmentActivity {
 		public int getCount() {
 			return summary.size();
 		}
-
+		
 		@Override
 		public CharSequence getPageTitle(int position) {
 			DataSummary sumItem = summary.get(position);
 			String monthName = Utility.getMonth(Integer.valueOf(sumItem.getMonth())).toUpperCase();
-			CharSequence pageTitle = monthName + " " + sumItem.getYear() + "(" + sumItem.getCount() + ")";
+			CharSequence pageTitle = monthName + " " + sumItem.getYear();
+			Configuration config = getResources().getConfiguration();
+			if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+				pageTitle = pageTitle + "(" + sumItem.getCount() + ")";
+			}
+			Log.i(this.getClass().getSimpleName(), "in the getPageTitle method with position = " +position+"; pageTitle is set to " +pageTitle);
 			return pageTitle;
 		}
 	}
-
+ 
 	/**
 	 * A dummy fragment representing a section of the app, but that simply
 	 * displays dummy text.
 	 */
 	public static class DummySectionFragment extends Fragment {
-		public static final String YEAR = "year";
-		public static final String MONTH = "month";
-		public static final String COUNT = "count";
-
-		public DummySectionFragment() {
-		}
+		public static final String SUM_ITEM = "summary_items";
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			Bundle args = getArguments();
-			String strYear = args.getString(YEAR);
-			String strMonth = args.getString(MONTH);
-			Integer iMonth = Integer.valueOf(strMonth);
-			ArrayList<History> wods = mDbHelper.getHistoryByMonth(strYear, 
-					Utility.pad(iMonth), Constants.SORT_BY_DATE);
-			
+			DataSummary sumItem = args.getParcelable(SUM_ITEM);
+			ArrayList<History> wods = mDbHelper.getHistoryByMonth(sumItem.getYear(), 
+					Utility.pad(Integer.valueOf(sumItem.getMonth())), Constants.SORT_BY_DATE);
 			View mFragmentView = inflater.inflate(R.layout.wod_history, container, false);
+//			Log.i(this.getClass().getSimpleName(), 
+//					"in the onCreateView method with year/month/(array)wods.size = " +strYear+"/"+Utility.pad(iMonth)+"/"+wods.size());
 			ListView listHistory = (ListView) mFragmentView.findViewById(R.id.listHistory);
 			listHistory.setAdapter(new CustomHistoryView(container.getContext().getApplicationContext(), wods));
 			return mFragmentView;
