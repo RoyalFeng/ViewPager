@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.acedanger.viewpager.support.Constants;
 import com.acedanger.viewpager.support.CustomHistoryView;
@@ -124,9 +125,15 @@ public class MainActivity extends FragmentActivity {
 			ArrayList<History> wods = mDbHelper.getHistoryByMonth(strYear, 
 					Utility.pad(iMonth), Constants.SORT_BY_DATE);
 			
-			View mFragmentView = inflater.inflate(R.layout.wod_history, container, false);
+			View mFragmentView = inflater.inflate(R.layout.wod_history, null);
+			TextView tvMonth = (TextView) mFragmentView.findViewById(R.id.wodHistoryMonth);
+			TextView tvYear = (TextView) mFragmentView.findViewById(R.id.wodHistoryYear);
 			ListView listHistory = (ListView) mFragmentView.findViewById(R.id.listHistory);
-			listHistory.setAdapter(new CustomHistoryView(container.getContext().getApplicationContext(), wods));
+			
+			tvMonth.setText(strMonth);
+			tvYear.setText(strYear);
+			CustomHistoryView chv = new CustomHistoryView(container.getContext(), wods);
+			listHistory.setAdapter(chv);
 			return mFragmentView;
 		}
 	}
